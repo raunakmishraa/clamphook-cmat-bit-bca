@@ -336,7 +336,7 @@
     <div class="grid-layout" id="test-cards-target">
         </div>
 
-    <div class="calendar-wrapper">
+    <!-- <div class="calendar-wrapper">
         <div class="calendar-header">
             <h2 class="section-title" style="margin-bottom:0;">Class Lecture Recordings Calendar</h2>
             <span id="calendar-month-indicator" style="font-weight: 700; color: var(--primary-color);">July 2026</span>
@@ -363,7 +363,7 @@
             <div class="calendar-day" data-day="13"><span class="day-num">13</span><div class="recording-container"></div></div>
             <div class="calendar-day" data-day="14"><span class="day-num">14</span><div class="recording-container"></div></div>
         </div>
-    </div>
+    </div> -->
 </main>
 
 <footer>
@@ -375,9 +375,9 @@
     const courseDataMatrix = {
         CMAT: {
             tests: [
-                { title: "CMAT Live Grand Test - Set 3", desc: "90-minute core entry constraints. Locks before 5 PM on exam days.", url: "/cmat?course=CMAT&set=Set1", isLive: true },
-                { title: "Quantitative Aptitude - Set 2", desc: "Past release database archive. Open for full continuous drill practice.", url: "quiz.html?course=CMAT&set=Set2", isLive: false },
-                { title: "Verbal Proficiency - Set 1", desc: "Historic evaluation catalog. Fully open access strategy.", url: "quiz.html?course=CMAT&set=Set1", isLive: false }
+                { title: "CMAT Live Grand Test - Set 1", desc: "90-minute core entry constraints. Locks before 5 PM on exam days.", url: "/cmat?course=CMAT&set=Set1", isLive: true },
+                { title: "CMAT Practice Test - Set 2", desc: "Past release database archive. Open for full continuous drill practice.", url: "/cmat?course=CMAT&set=Set2", isLive: false },
+                { title: "CMAT Model Practice Test - Set 3", desc: "Historic evaluation catalog. Fully open access strategy.", url: "/cmat?course=CMAT&set=Set3", isLive: false }
             ],
             recordings: {
                 5: { topic: "Verbal Strategy", url: "#" },
@@ -387,8 +387,9 @@
         },
         BIT: {
             tests: [
-                { title: "BIT Mathematics - Set 2", desc: "Active evaluation set. Focused calculus & algebra frameworks.", url: "quiz.html?course=BIT&set=Set2", isLive: true },
-                { title: "Foundational Physics - Set 1", desc: "Archived repository module. Open anytime for review.", url: "quiz.html?course=BIT&set=Set1", isLive: false }
+                { title: "BIT Live Grand Test - Set 1", desc: "120-minute core entry constraints. Locks before 5 PM on exam days.", url: "/bit?course=BIT&set=Set1", isLive: true },
+                { title: "BIT Practice Test - Set 2", desc: "Past release database archive. Open for full continuous drill practice.", url: "/bit?course=BIT&set=Set2", isLive: false },
+                { title: "BIT Model Practice Test - Set 3", desc: "Historic evaluation catalog. Fully open access strategy.", url: "/bit?course=BIT&set=Set3", isLive: false }
             ],
             recordings: {
                 5: { topic: "Calculus Limits", url: "#" },
@@ -397,7 +398,9 @@
         },
         BCA: {
             tests: [
-                { title: "BCA Computer Architecture - Set 1", desc: "Active module. Binary logic gates & sequential arrays evaluation.", url: "quiz.html?course=BCA&set=Set1", isLive: true }
+                { title: "BCA Live Grand Test - Set 1", desc: "120-minute core entry constraints. Locks before 5 PM on exam days.", url: "/bca?course=BCA&set=Set1", isLive: true },
+                { title: "BCA Practice Test - Set 2", desc: "Past release database archive. Open for full continuous drill practice.", url: "/bca?course=BCA&set=Set2", isLive: false },
+                { title: "BCA Model Practice Test - Set 3", desc: "Historic evaluation catalog. Fully open access strategy.", url: "/bca?course=BCA&set=Set3", isLive: false }
             ],
             recordings: {
                 6: { topic: "Introduction to C", url: "#" },

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Standings & Leaderboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #2563eb;       
+            --primary-hover: #1d4ed8;
+            --secondary-color: #10b981;     
+            --dark-bg: #0f172a;             
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --body-bg: #f8fafc;
+            --card-border: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--body-bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--dark-bg);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .navbar {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar-brand {
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .navbar-brand span { color: var(--primary-color); }
+
+        main {
+            flex: 1;
+            max-width: 1000px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 40px 20px;
+            box-sizing: border-box;
+        }
+
+        .header-section { margin-bottom: 30px; }
+        .header-section h1 { font-size: 26px; color: var(--dark-bg); margin: 0 0 8px 0; }
+        .header-section p { color: var(--text-muted); margin: 0; }
+
+        .filter-wrapper {
+            background: #ffffff;
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+        }
+        .filter-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .filter-group label { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
+        select {
+            padding: 10px 14px;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            background-color: #ffffff;
+            font-size: 15px;
+            color: var(--text-main);
+            outline: none;
+        }
+        select:focus { border-color: var(--primary-color); }
+
+        .podium-box {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 15px;
+            margin-bottom: 40px;
+            padding: 0 10px;
+        }
+        .podium-card {
+            background: #ffffff;
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            flex: 1;
+            max-width: 220px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.02);
+            display: none; 
+        }
+        .podium-1 { order: 2; height: 160px; border-color: #f59e0b; background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100%); }
+        .podium-2 { order: 1; height: 130px; border-color: #94a3b8; }
+        .podium-3 { order: 3; height: 110px; border-color: #b45309; }
+        
+        .rank-medal {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px auto;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .podium-1 .rank-medal { background: #fef3c7; color: #d97706; border: 1px solid #fcd34d; }
+        .podium-2 .rank-medal { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+        .podium-3 .rank-medal { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; }
+
+        .podium-name { font-weight: 700; color: var(--dark-bg); font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .podium-score { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+        .podium-pct { font-weight: 700; color: var(--primary-color); font-size: 16px; margin-top: 5px; }
+
+        .table-container {
+            background: #ffffff;
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+        }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th {
+            background-color: #f8fafc;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--card-border);
+        }
+        td { padding: 16px 20px; border-bottom: 1px solid var(--card-border); font-size: 15px; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: #f8fafc; }
+
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 13px;
+            background-color: var(--body-bg);
+            color: var(--text-main);
+        }
+        tr:nth-child(1) .rank-badge { background-color: #fffbeb; color: #d97706; }
+        tr:nth-child(2) .rank-badge { background-color: #f1f5f9; color: #475569; }
+        tr:nth-child(3) .rank-badge { background-color: #ffedd5; color: #c2410c; }
+
+        .text-right { text-align: right; }
+        .font-semibold { font-weight: 600; }
+        
+        #loading-overlay { text-align: center; padding: 40px 0; color: var(--text-muted); font-size: 16px; }
+        #empty-notice { text-align: center; padding: 40px 0; color: var(--text-muted); display: none; }
+
+        @media (max-width: 768px) {
+            .filter-wrapper { flex-direction: column; gap: 15px; }
+            .podium-box { flex-direction: column; align-items: center; gap: 15px; }
+            .podium-card { width: 100%; max-width: 100%; height: auto !important; padding: 16px; }
+            th:nth-child(4), td:nth-child(4) { display: none; } 
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="navbar">
+        <a href="#" class="navbar-brand">Clamphook<span>Rankings System</span></a>
+    </div>
+</header>
+
+<main>
+    <div class="header-section">
+        <h1>Examination Leaderboards</h1>
+        <p>Real-time scoring analysis running on independent script engines.</p>
+    </div>
+
+    <div class="filter-wrapper">
+        <div class="filter-group">
+            <label for="filter-course">Course Track</label>
+            <select id="filter-course">
+                <option value="CMAT">CMAT (Management)</option>
+                <option value="BIT">BIT (Information Technology)</option>
+                <option value="BCA">BCA (Computer Applications)</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="filter-set">Question Evaluation Set</label>
+            <select id="filter-set">
+                <option value="">Choose a course first...</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="loading-overlay" style="display: none;">Pulling ranking parameters down from sheet architecture...</div>
+    <div id="empty-notice">No submission records match this specific Course + Set combination filter loop.</div>
+
+    <div class="podium-box" id="podium-area">
+        <div class="podium-card podium-1" id="p1-card">
+            <div class="rank-medal">1</div>
+            <div class="podium-name" id="p1-name">-</div>
+            <div class="podium-score" id="p1-score">-</div>
+            <div class="podium-pct" id="p1-pct">0%</div>
+        </div>
+        <div class="podium-card podium-2" id="p2-card">
+            <div class="rank-medal">2</div>
+            <div class="podium-name" id="p2-name">-</div>
+            <div class="podium-score" id="p2-score">-</div>
+            <div class="podium-pct" id="p2-pct">0%</div>
+        </div>
+        <div class="podium-card podium-3" id="p3-card">
+            <div class="rank-medal">3</div>
+            <div class="podium-name" id="p3-name">-</div>
+            <div class="podium-score" id="p3-score">-</div>
+            <div class="podium-pct" id="p3-pct">0%</div>
+        </div>
+    </div>
+
+    <div class="table-container" id="leaderboard-table-wrapper" style="display: none;">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 80px;">Rank</th>
+                    <th>Student Name</th>
+                    <th>Course Set Track</th>
+                    <th class="text-right">Score Metric</th>
+                    <th class="text-right">Percentage</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard-rows-target"></tbody>
+        </table>
+    </div>
+</main>
+
+<script>
+    // ==========================================================================
+    // PASTE YOUR 3 DISTINCT SEPARATE GOOGLE APPS SCRIPT WEB APP URLS HERE
+    // ==========================================================================
+    const SCRIPT_URLS_MATRIX = {
+        CMAT: "https://script.google.com/macros/s/AKfycbyxfhg7fiU4ed3jZURF15OwEygaSS8dQNQb_VJIvh7pVcb_0e9lWLi1bgusLMJGDUyW/exec",
+        BIT:  "https://script.google.com/macros/s/AKfycbyFnnEmq-lHXFwTV99y-q97YiOM5UiaLW2zRAhdYa6z_RBh0mjA0cWIfAmsfr7Tg1I5/exec",
+        BCA:  "https://script.google.com/macros/s/AKfycbxzgHRitDSyx0KTdEkbyoTuCbgS-H85p_3aOMI9MgE6lWctwE3ZThuKW-VA73FRo3je1Q/exec"
+    };
+    
+    let currentActiveRecords = [];
+
+    $(document).ready(function() {
+        // Initial load configuration
+        fetchDataForCourse($('#filter-course').val());
+
+        // When course shifts, fetch raw data from its specific URL completely
+        $('#filter-course').on('change', function() {
+            fetchDataForCourse($(this).val());
+        });
+
+        // When test set dropdown updates, filter existing records locally
+        $('#filter-set').on('change', function() {
+            processAndRenderRankings();
+        });
+    });
+
+    function fetchDataForCourse(courseKey) {
+        let scriptUrl = SCRIPT_URLS_MATRIX[courseKey];
+        
+        if (!scriptUrl || scriptUrl.includes("YOUR_")) {
+            alert(`Script URL configuration missing for course: ${courseKey}`);
+            return;
+        }
+
+        $('#leaderboard-table-wrapper').hide();
+        $('.podium-card').hide();
+        $('#empty-notice').hide();
+        $('#loading-overlay').show();
+        $('#filter-set').html('<option value="">Polling sets...</option>');
+
+        $.ajax({
+            url: scriptUrl,
+            type: "GET",
+            data: { action: "getLeaderboard" },
+            dataType: "json",
+            success: function(data) {
+                currentActiveRecords = data;
+                $('#loading-overlay').hide();
+                
+                buildDynamicSetFilters();
+                processAndRenderRankings();
+            },
+            error: function() {
+                $('#loading-overlay').hide();
+                alert(`Handshake disruption on ${courseKey} cloud endpoint route pipeline.`);
+            }
+        });
+    }
+
+    function buildDynamicSetFilters() {
+        let setMap = {};
+        currentActiveRecords.forEach(function(row) {
+            if(row.set) { setMap[row.set.trim()] = true; }
+        });
+        
+        let uniqueSets = Object.keys(setMap).sort();
+        let setOptionsHtml = "";
+        
+        if(uniqueSets.length > 0) {
+            uniqueSets.forEach(function(setName) {
+                let cleanName = setName.replace(/^(Set)(\d+)/i, '$1 $2');
+                setOptionsHtml += `<option value="${setName}">${cleanName}</option>`;
+            });
+        } else {
+            setOptionsHtml = '<option value="Set 1">Set 1 (No records yet)</option>';
+        }
+        $('#filter-set').html(setOptionsHtml);
+    }
+
+    function processAndRenderRankings() {
+        let selectedSet = $('#filter-set').val();
+        let selectedCourse = $('#filter-course').val();
+
+        // Filter locally out of the active active script's dataset return values
+        let filtered = currentActiveRecords.filter(function(row) {
+            if(!selectedSet) return true; // Fallback filter skip
+            
+            let normRowSet = row.set.replace(/\s+/g, '').toUpperCase();
+            let normSelSet = selectedSet.replace(/\s+/g, '').toUpperCase();
+            return (normRowSet === normSelSet);
+        });
+
+        // Sort descending metrics logic
+        filtered.sort(function(a, b) {
+            return parseFloat(b.percentage) - parseFloat(a.percentage) || b.score - a.score;
+        });
+
+        $('.podium-card').hide();
+        $('#leaderboard-rows-target').empty();
+
+        if (filtered.length === 0) {
+            $('#empty-notice').show();
+            $('#leaderboard-table-wrapper').hide();
+            return;
+        }
+
+        $('#empty-notice').hide();
+        $('#leaderboard-table-wrapper').show();
+
+        // Top 3 Podium Cards population block
+        if (filtered[0]) {
+            $('#p1-name').text(filtered[0].name);
+            $('#p1-score').text(`${filtered[0].score} / ${filtered[0].total} Correct`);
+            $('#p1-pct').text(`${filtered[0].percentage}%`);
+            $('#p1-card').css('display', 'block');
+        }
+        if (filtered[1]) {
+            $('#p2-name').text(filtered[1].name);
+            $('#p2-score').text(`${filtered[1].score} / ${filtered[1].total} Correct`);
+            $('#p2-pct').text(`${filtered[1].percentage}%`);
+            $('#p2-card').css('display', 'block');
+        }
+        if (filtered[2]) {
+            $('#p3-name').text(filtered[2].name);
+            $('#p3-score').text(`${filtered[2].score} / ${filtered[2].total} Correct`);
+            $('#p3-pct').text(`${filtered[2].percentage}%`);
+            $('#p3-card').css('display', 'block');
+        }
+
+        // Table Rows generation block
+        let rowsHtml = "";
+        filtered.forEach(function(student, index) {
+            rowsHtml += `
+                <tr>
+                    <td><span class="rank-badge">${index + 1}</span></td>
+                    <td class="font-semibold">${student.name}</td>
+                    <td style="color: var(--text-muted); font-size: 14px;">${selectedCourse} — ${student.set}</td>
+                    <td class="text-right">${student.score} / ${student.total}</td>
+                    <td class="text-right font-semibold" style="color: var(--primary-color);">${student.percentage}%</td>
+                </tr>
+            `;
+        });
+        
+        $('#leaderboard-rows-target').html(rowsHtml);
+    }
+</script>
+</body>
+</html>

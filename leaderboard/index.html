@@ -30,13 +30,14 @@
             min-height: 100vh;
         }
 
-        header {
+header {
             background-color: var(--dark-bg);
             position: sticky;
             top: 0;
             z-index: 1000;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
+
         .navbar {
             max-width: 1200px;
             margin: 0 auto;
@@ -44,14 +45,56 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
         }
+
         .navbar-brand {
             color: #ffffff;
             font-size: 20px;
             font-weight: 700;
             text-decoration: none;
+            letter-spacing: -0.5px;
         }
         .navbar-brand span { color: var(--primary-color); }
+
+        .menu-toggle {
+            display: none; 
+            flex-direction: column;
+            justify-content: space-between;
+            width: 22px;
+            height: 16px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+        }
+        .menu-toggle .bar {
+            height: 2px;
+            width: 100%;
+            background-color: #ffffff;
+            border-radius: 2px;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            transform-origin: left center;
+        }
+        .menu-toggle.active .bar:nth-child(1) { transform: rotate(45deg) translate(1px, -1px); }
+        .menu-toggle.active .bar:nth-child(2) { opacity: 0; transform: translateX(-10px); }
+        .menu-toggle.active .bar:nth-child(3) { transform: rotate(-45deg) translate(1px, 1px); }
+
+        .navbar-nav {
+            display: flex;
+            gap: 20px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        .navbar-nav a {
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+        .navbar-nav a:hover { color: #ffffff; }
 
         main {
             flex: 1;

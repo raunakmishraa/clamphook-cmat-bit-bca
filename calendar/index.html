@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Academic Calendar Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #2563eb;       
+            --primary-hover: #1d4ed8;
+            --dark-bg: #0f172a;             
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --body-bg: #f8fafc;
+            --card-border: #e2e8f0;
+            
+            /* Event Category Design Tokens */
+            --color-form: #3b82f6;          /* Registration Window - Blue */
+            --color-deadline: #ef4444;      /* Cutoff Deadline - Red */
+            --color-exam: #f59e0b;          /* Examination Date - Amber */
+            
+            /* Course Badge Design Tokens */
+            --bg-cmat: #f0fdf4;  --text-cmat: #16a34a; /* Green Theme */
+            --bg-bit: #fdf2f8;   --text-bit: #db2777;  /* Pink Theme */
+            --bg-bca: #faf5ff;   --text-bca: #9333ea;  /* Purple Theme */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--body-bg);
+            color: var(--text-main);
+            margin: 0; padding: 0;
+            display: flex; flex-direction: column; min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--dark-bg); position: sticky; top: 0; z-index: 1000;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .navbar {
+            max-width: 1200px; margin: 0 auto; padding: 15px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .navbar-brand { color: #ffffff; font-size: 20px; font-weight: 700; text-decoration: none; }
+        .navbar-brand span { color: var(--primary-color); }
+
+        main { flex: 1; max-width: 1200px; width: 100%; margin: 0 auto; padding: 40px 20px; box-sizing: border-box; }
+        
+        .header-block { margin-bottom: 30px; }
+        .header-block h1 { font-size: 26px; color: var(--dark-bg); margin: 0 0 6px 0; letter-spacing: -0.5px; }
+        .header-block p { color: var(--text-muted); margin: 0; }
+
+        /* --- LEGEND PANEL STRIP --- */
+        .controls-container {
+            background: #ffffff; border: 1px solid var(--card-border); border-radius: 12px;
+            padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 30px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+        }
+        .legend-strip { display: flex; gap: 25px; align-items: center; }
+        .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--text-muted); }
+        .legend-indicator { width: 12px; height: 12px; border-radius: 4px; display: inline-block; }
+        .bg-form { background-color: var(--color-form); }
+        .bg-deadline { background-color: var(--color-deadline); }
+        .bg-exam { background-color: var(--color-exam); }
+
+        /* --- TWO-COLUMN WORKSPACE GRID --- */
+        .calendar-workspace { display: grid; grid-template-columns: 1.9fr 1.1fr; gap: 30px; }
+        
+        .grid-panel { background: #ffffff; border: 1px solid var(--card-border); border-radius: 16px; padding: 25px; }
+        .grid-month-banner { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .grid-month-banner h2 { font-size: 18px; margin: 0; color: var(--dark-bg); font-weight: 700; }
+        
+        .calendar-mesh { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
+        .weekday-tag { text-align: center; font-size: 12px; font-weight: 600; color: var(--text-muted); padding-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .day-cell {
+            background-color: var(--body-bg); border: 1px solid var(--card-border); border-radius: 8px;
+            min-height: 95px; padding: 8px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .day-title { font-size: 13px; font-weight: 700; color: #94a3b8; }
+        .day-cell.active-month .day-title { color: var(--text-main); }
+        .day-cell.current-today { border-color: var(--primary-color); background-color: #eff6ff; }
+        .day-cell.current-today .day-title { color: var(--primary-color); }
+
+        /* Cell Event Tags Matrix Layout */
+        .cell-dots-container { display: flex; flex-direction: column; gap: 3px; margin-top: 4px; }
+        .cell-label-pill { 
+            font-size: 9px; font-weight: 700; padding: 2px 4px; border-radius: 3px; color: #ffffff;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+        }
+
+        /* --- HIGHLIGHTS SIDEBAR WITH BADGES --- */
+        .highlights-panel { background: #ffffff; border: 1px solid var(--card-border); border-radius: 16px; padding: 25px; height: max-content; }
+        .highlights-title { font-size: 16px; font-weight: 700; color: var(--dark-bg); margin: 0 0 15px 0; }
+        .agenda-stack { display: flex; flex-direction: column; gap: 14px; }
+        
+        .agenda-card {
+            padding: 14px; border-radius: 10px; border-left: 4px solid #cbd5e1; background-color: var(--body-bg);
+            position: relative;
+        }
+        .agenda-card.card-form { border-left-color: var(--color-form); }
+        .agenda-card.card-deadline { border-left-color: var(--color-deadline); }
+        .agenda-card.card-exam { border-left-color: var(--color-exam); }
+        
+        .card-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .card-tag { font-size: 11px; font-weight: 700; text-transform: uppercase; }
+        .card-form .card-tag { color: var(--color-form); }
+        .card-deadline .card-tag { color: var(--color-deadline); }
+        .card-exam .card-tag { color: var(--color-exam); }
+        
+        /* Dynamic Program Badging Styles */
+        .course-badge {
+            font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 20px; text-transform: uppercase;
+        }
+        .badge-cmat { background-color: var(--bg-cmat); color: var(--text-cmat); border: 1px solid #dcfce7; }
+        .badge-bit { background-color: var(--bg-bit); color: var(--text-bit); border: 1px solid #fce7f3; }
+        .badge-bca { background-color: var(--bg-bca); color: var(--text-bca); border: 1px solid #f3e8ff; }
+
+        .card-title { font-size: 14px; font-weight: 600; color: var(--dark-bg); margin-bottom: 2px; }
+        .card-desc { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
+        .card-date { font-size: 11px; font-weight: 600; color: #94a3b8; margin-top: 8px; text-align: right; }
+
+        #state-notification { text-align: center; padding: 30px 0; color: var(--text-muted); font-size: 14px; }
+
+        @media (max-width: 992px) {
+            .calendar-workspace { grid-template-columns: 1fr; }
+            .controls-container { display: none; } /* Clear screen clutter on mobile tablets */
+        }
+        @media (max-width: 576px) {
+            .calendar-mesh { gap: 4px; }
+            .day-cell { min-height: 65px; padding: 4px; }
+            .cell-label-pill { font-size: 8px; padding: 1px 2px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="navbar">
+        <a href="#" class="navbar-brand">EduMatrix<span>Master Timeline</span></a>
+    </div>
+</header>
+
+<main>
+    <div class="header-block">
+        <h1>Institutional Master Calendar</h1>
+        <p>Consolidated academic timelines detailing programmatic milestones across all enrollment domains.</p>
+    </div>
+
+    <div class="controls-container">
+        <span style="font-size: 14px; font-weight: 600; color: var(--dark-bg);">Global Key Index</span>
+        <div class="legend-strip">
+            <div class="legend-item"><span class="legend-indicator bg-form"></span> Registration Window</div>
+            <div class="legend-item"><span class="legend-indicator bg-deadline"></span> Cutoff Deadline</div>
+            <div class="legend-item"><span class="legend-indicator bg-exam"></span> Examination Dates</div>
+        </div>
+    </div>
+
+    <div class="calendar-workspace">
+        <div class="grid-panel">
+            <div class="grid-month-banner">
+                <h2>July 2026</h2>
+                <span style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">All Programs Combined</span>
+            </div>
+            
+            <div class="calendar-mesh" id="mesh-target">
+                </div>
+        </div>
+
+        <div class="highlights-panel">
+            <h3 class="highlights-title">Important Deadlines & Events</h3>
+            <div class="agenda-stack" id="agenda-target">
+                <div id="state-notification">Connecting to unified tracking timeline matrix...</div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    // ==========================================================================
+    // PASTE YOUR CENTRAL CALENDAR SCRIPT WEB APP RUNTIME ENDPOINT URL HERE
+    // ==========================================================================
+    const DEDICATED_TIMELINE_SHEET_API = "https://script.google.com/macros/s/AKfycbxFV2uiftmnWNdATsK0svxowSrlGm4SfEa0mh_Qe93-1nOLbM6wc9cb4F-24KMBjVXE/exec";
+
+    let globalTimelineRecords = [];
+
+    $(document).ready(function() {
+        fetchMasterCalendarRecords();
+    });
+
+    function fetchMasterCalendarRecords() {
+        if (!DEDICATED_TIMELINE_SHEET_API || DEDICATED_TIMELINE_SHEET_API.includes("YOUR_")) {
+            $('#agenda-target').html('<div id="state-notification" style="color:red;">Variable Mapping Error: Please provide your Apps Script URL string.</div>');
+            return;
+        }
+
+        // Fetch everything by modifying the Apps Script logic parameters (removing singular program restrictions)
+        $.ajax({
+            url: DEDICATED_TIMELINE_SHEET_API,
+            type: "GET",
+            data: { action: "getTimelineEvents", course: "ALL" }, // Sends "ALL" bypass identifier flag back to sheet logic
+            dataType: "json",
+            success: function(recordsResponse) {
+                globalTimelineRecords = recordsResponse;
+                renderMonthlyMesh();
+                renderAgendaSidebar();
+            },
+            error: function() {
+                $('#agenda-target').html('<div id="state-notification" style="color:red;">Data Pipeline Error: Connection drop when pulling combined milestones.</div>');
+            }
+        });
+    }
+
+    function renderMonthlyMesh() {
+        let mesh = $('#mesh-target');
+        mesh.empty();
+
+        const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        weekdays.forEach(dayName => mesh.append(`<div class="weekday-tag">${dayName}</div>`));
+
+        // Fixed Template Configurations For Calendar Grid (July 2026 Layout)
+        const emptyPaddingsCount = 3; // Month begins on Wednesday
+        const monthDaysTotal = 31;
+
+        for (let b = 0; b < emptyPaddingsCount; b++) {
+            mesh.append('<div class="day-cell" style="opacity:0.2;"></div>');
+        }
+
+        for (let currentDay = 1; currentDay <= monthDaysTotal; currentDay++) {
+            let searchISODate = `2026-07-${currentDay.toString().padStart(2, '0')}`;
+            let matchTodayHighlight = (currentDay === 9) ? 'current-today' : '';
+
+            // Match structural entries
+            let matchedEvents = globalTimelineRecords.filter(ev => ev.date === searchISODate);
+            let badgesContainerHtml = '<div class="cell-dots-container">';
+            
+            matchedEvents.forEach(ev => {
+                // Creates a cleanly condensed color bar snippet detailing the program and event description
+                badgesContainerHtml += `
+                    <div class="cell-label-pill bg-${ev.type}" title="[${ev.course.toUpperCase()}] ${ev.title}">
+                        ${ev.course.toUpperCase()}: ${ev.title}
+                    </div>
+                `;
+            });
+            badgesContainerHtml += '</div>';
+
+            mesh.append(`
+                <div class="day-cell active-month ${matchTodayHighlight}">
+                    <span class="day-title">${currentDay}</span>
+                    ${badgesContainerHtml}
+                </div>
+            `);
+        }
+    }
+
+    function renderAgendaSidebar() {
+        let agenda = $('#agenda-target');
+        agenda.empty();
+
+        if (globalTimelineRecords.length === 0) {
+            agenda.html('<div id="state-notification">No upcoming milestone tracking records found in the spreadsheet database.</div>');
+            return;
+        }
+
+        // Order the events by chronological date proximity
+        let chronologicFeed = [...globalTimelineRecords].sort((x, y) => new Date(x.date) - new Date(y.date));
+
+        chronologicFeed.forEach(function(item) {
+            let typeLabel = item.type === 'form' ? 'Registration Open' : item.type === 'deadline' ? 'Hard Deadline' : 'Exam Date';
+            let normCourse = item.course ? item.course.toLowerCase().trim() : 'cmat';
+
+            agenda.append(`
+                <div class="agenda-card card-${item.type}">
+                    <div class="card-top-row">
+                        <span class="card-tag">${typeLabel}</span>
+                        <span class="course-badge badge-${normCourse}">${normCourse}</span>
+                    </div>
+                    <div class="card-title">${item.title}</div>
+                    <div class="card-desc">${item.description}</div>
+                    <div class="card-date">${item.date}</div>
+                </div>
+            `);
+        });
+    }
+</script>
+</body>
+</html>

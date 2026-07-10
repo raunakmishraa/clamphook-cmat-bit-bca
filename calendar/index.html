@@ -181,9 +181,9 @@
 
 <script>
     // ==========================================================================
-    // PASTE YOUR CENTRAL CALENDAR SCRIPT WEB APP RUNTIME ENDPOINT URL HERE
+    // PASTE YOUR UPDATED CENTRAL CALENDAR WEB APP URL HERE
     // ==========================================================================
-    const DEDICATED_TIMELINE_SHEET_API = "https://script.google.com/macros/s/AKfycbxFV2uiftmnWNdATsK0svxowSrlGm4SfEa0mh_Qe93-1nOLbM6wc9cb4F-24KMBjVXE/exec";
+    const DEDICATED_TIMELINE_SHEET_API = "https://script.google.com/macros/s/AKfycbxJyK2UoDE-6swUhGd8R_N9HndpJ2ZIYMoNy-SZHfJj6fUY8ZgSB9veypxcp9DYhXY/exec";
 
     let globalTimelineRecords = [];
 
@@ -197,19 +197,26 @@
             return;
         }
 
-        // Fetch everything by modifying the Apps Script logic parameters (removing singular program restrictions)
+        $('#agenda-target').html('<div id="state-notification">Connecting directly to raw calendar stream...</div>');
+
+        // Clean parameterless GET request
         $.ajax({
             url: DEDICATED_TIMELINE_SHEET_API,
             type: "GET",
-            data: { action: "getTimelineEvents", course: "ALL" }, // Sends "ALL" bypass identifier flag back to sheet logic
             dataType: "json",
             success: function(recordsResponse) {
                 globalTimelineRecords = recordsResponse;
                 renderMonthlyMesh();
                 renderAgendaSidebar();
             },
-            error: function() {
-                $('#agenda-target').html('<div id="state-notification" style="color:red;">Data Pipeline Error: Connection drop when pulling combined milestones.</div>');
+            error: function(xhr, status, error) {
+                $('#agenda-target').html(`
+                    <div id="state-notification" style="color:red; text-align:left;">
+                        <strong>Data Pipeline Error!</strong><br>
+                        Status: ${status}<br>
+                        Message: The script URL failed to return data. Please check deployment settings.
+                    </div>
+                `);
             }
         });
     }
@@ -221,8 +228,8 @@
         const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         weekdays.forEach(dayName => mesh.append(`<div class="weekday-tag">${dayName}</div>`));
 
-        // Fixed Template Configurations For Calendar Grid (July 2026 Layout)
-        const emptyPaddingsCount = 3; // Month begins on Wednesday
+        // July 2026 Calendar Grid Layout Configuration
+        const emptyPaddingsCount = 3; 
         const monthDaysTotal = 31;
 
         for (let b = 0; b < emptyPaddingsCount; b++) {
@@ -233,15 +240,13 @@
             let searchISODate = `2026-07-${currentDay.toString().padStart(2, '0')}`;
             let matchTodayHighlight = (currentDay === 9) ? 'current-today' : '';
 
-            // Match structural entries
             let matchedEvents = globalTimelineRecords.filter(ev => ev.date === searchISODate);
             let badgesContainerHtml = '<div class="cell-dots-container">';
             
             matchedEvents.forEach(ev => {
-                // Creates a cleanly condensed color bar snippet detailing the program and event description
                 badgesContainerHtml += `
-                    <div class="cell-label-pill bg-${ev.type}" title="[${ev.course.toUpperCase()}] ${ev.title}">
-                        ${ev.course.toUpperCase()}: ${ev.title}
+                    <div class="cell-label-pill bg-${ev.type}" title="[${ev.course}] ${ev.title}">
+                        ${ev.course}: ${ev.title}
                     </div>
                 `;
             });
@@ -261,16 +266,16 @@
         agenda.empty();
 
         if (globalTimelineRecords.length === 0) {
-            agenda.html('<div id="state-notification">No upcoming milestone tracking records found in the spreadsheet database.</div>');
+            agenda.html('<div id="state-notification">No timeline records found. Your sheet appears empty.</div>');
             return;
         }
 
-        // Order the events by chronological date proximity
+        // Sort chronologically by date proximity
         let chronologicFeed = [...globalTimelineRecords].sort((x, y) => new Date(x.date) - new Date(y.date));
 
         chronologicFeed.forEach(function(item) {
             let typeLabel = item.type === 'form' ? 'Registration Open' : item.type === 'deadline' ? 'Hard Deadline' : 'Exam Date';
-            let normCourse = item.course ? item.course.toLowerCase().trim() : 'cmat';
+            let normCourse = item.course ? item.course.toLowerCase().trim() : 'general';
 
             agenda.append(`
                 <div class="agenda-card card-${item.type}">

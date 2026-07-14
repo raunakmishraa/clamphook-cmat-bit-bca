@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BIT Mock Exam Portal</title>
+    <title>PU Scholarship Mock Exam Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     
@@ -287,7 +287,7 @@
 
 <header>
     <div class="navbar">
-        <a href="#" class="navbar-brand">BIT Prep<span>Portal</span></a>
+        <a href="#" class="navbar-brand">PUMAT Prep<span>Portal</span></a>
         <button class="menu-toggle" id="mobile-menu-btn" aria-label="Toggle navigation menu">
             <span class="bar"></span><span class="bar"></span><span class="bar"></span>
         </button>
@@ -302,7 +302,7 @@
 <main>
     <div class="container">
         <div id="login-screen" class="screen active-screen">
-            <h2>BIT Entrance Examination Entry</h2>
+            <h2>PU Scholarship Examination Entry</h2>
             <p style="color: var(--text-muted); margin-bottom: 20px;">Provide registration tracking parameters and select your question block sheet package module.</p>
             
             <div id="status-message" class="status-msg-box"></div>
@@ -324,10 +324,10 @@
                 </select>
             </div>
 
-            <button id="start-btn" class="btn" style="width: 100%; margin-top: 10px;">Authenticate & Start BIT Test</button>
+            <button id="start-btn" class="btn" style="width: 100%; margin-top: 10px;">Authenticate & Start PUMAT Test</button>
         </div>
 
-        <div id="loading" class="screen">Connecting to Database framework, please stand by...</div>
+        <div id="loading" class="screen">Connecting to database framework, please stand by...</div>
 
         <div id="quiz-screen" class="screen">
             <div class="quiz-subheader">
@@ -363,11 +363,12 @@
     // ==========================================================================
     // PASTE YOUR GOOGLE DEPLOYED WEB APP URL HERE
     // ==========================================================================
-    const DEPLOYED_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwSv2JsWRjqa-QeSJ90EHEBmHXe4JAWXiA8nRkLLL3Hug4347OfvJr7_ioUy-DZpBix/exec";
+    const DEPLOYED_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxC08IL33ByNmPBTkc0GL1JtP8TAVQWyFg3JyZCDwIUrrrJcFKqm4uPg2ThIHPH5H6vOg/exec"; 
+    
     let questionsData = [];
     let currentPage = 0;
     const questionsPerPage = 10;
-    let examDurationSeconds = 120 * 60; // 120 Minute BIT Constraint standard
+    let examDurationSeconds = 180 * 60; // 90 Minute CMAT Constraint standard
     let timerInterval;
     let activeLiveSetGlobal = "";
 
@@ -437,7 +438,7 @@
         });
 
         $('#submit-btn').on('click', function() {
-            if (confirm("Submit your BIT response sheets now?")) { processAndSubmitExam(false); }
+            if (confirm("Submit your CMAT response sheets now?")) { processAndSubmitExam(false); }
         });
     });
 
